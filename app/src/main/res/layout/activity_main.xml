@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10px"
+            android:id="@+id/name_id"
+            android:hint="Name"
+            />
+
+
+        <EditText
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/phone_id"
+            android:layout_marginRight="10px"
+            android:hint="Phone"
+            />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/insert_id"
+            android:layout_marginRight="10px"
+            android:text="INSERT"
+            />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/search_id"
+            android:text="SEARCH"
+            />
+
+    </LinearLayout>
+    <ListView
+        android:id="@+id/lstViewID"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"></ListView>
+
+
+</LinearLayout>
