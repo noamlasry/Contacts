@@ -7,11 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,8 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText nameField,phoneField;
     private SQLiteDatabase contactsDB = null;
     public static final String MY_DB_NAME = "contacts.db";
-
     int images[] = {R.mipmap.gray_phone_icon,R.mipmap.green_phone_icon};
+    Vector<Boolean> hasPhoneNum = new Vector<>();
 
 
     @Override
@@ -59,6 +61,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayContact(vec);
 
 
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                String item = "Item " + position ;
+                int redColorValue = Color.RED;
+
+                //edtInput.setText(item);
+                Toast.makeText(MainActivity.this, item, Toast.LENGTH_LONG).show();
+            }
+        });
+
+
     }
     public void onClick(View v)
     {
@@ -70,8 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.search_id:
                 findSubString();
                 break;
+
         }
     }
+
+
     public void displayContact(Vector<String> mTitle)
     {
         MyAdapter adapter = new MyAdapter(this, mTitle, images[0]);
@@ -100,6 +120,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             View row = layoutInflater.inflate(R.layout.row, parent, false);
             ImageView images = row.findViewById(R.id.image);
             TextView myTitle = row.findViewById(R.id.textView1);
+            if(!hasPhoneNum.isEmpty())
+            {
+                if(hasPhoneNum.get(position))
+                    rImgs = R.mipmap.green_phone_icon;
+
+                else
+                    rImgs = R.mipmap.gray_phone_icon;
+            }
             images.setImageResource(rImgs);
             myTitle.setText(rTitle.get(position));
             return row;
@@ -122,6 +150,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         String contactName = nameField.getText().toString();
         String contactPhone = phoneField.getText().toString();
+        if(contactPhone.matches(""))
+        {
+            hasPhoneNum.addElement(false);
+        }
+        else
+        {
+            hasPhoneNum.addElement(true);
+        }
         if(contactName.matches("") && contactPhone.matches(""))
         {
             Toast.makeText(this, "missing name & phone", Toast.LENGTH_SHORT).show();
@@ -159,35 +195,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         displayContact(vec);
     }
-    public Vector<String> showSpecificContact(String nameTofind)
-    {
-        Vector <String> vec = new Vector<>();
-        String sql = "SELECT * FROM contacts WHERE name = nameTofind";
-        Cursor cursor = contactsDB.rawQuery(sql, null);
 
-        int idColumn = cursor.getColumnIndex("id");
-        int nameColumn = cursor.getColumnIndex("name");
-        int phoneColumn = cursor.getColumnIndex("phone");
-
-        String contactList = "";
-        if (cursor.moveToFirst()) {
-            do {
-                String id = cursor.getString(idColumn);
-                String name = cursor.getString(nameColumn);
-                String phone = cursor.getString(phoneColumn);
-
-                contactList =  name  +"  "+ phone ;
-                vec.addElement(contactList);
-
-            } while (cursor.moveToNext());
-
-
-        } else {
-
-            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
-        }
-        return vec;
-    }
     public Vector<String> showContacts()
     {
         Vector <String> vec = new Vector<>();
@@ -206,6 +214,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String phone = cursor.getString(phoneColumn);
 
                 contactList =  name  +"  "+ phone ;
+                if(phone.matches(""))
+                    hasPhoneNum.addElement(false);
+                else
+                    hasPhoneNum.addElement(true);
+
                 vec.addElement(contactList);
 
             } while (cursor.moveToNext());
