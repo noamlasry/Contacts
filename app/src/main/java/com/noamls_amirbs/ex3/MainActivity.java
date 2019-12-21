@@ -54,29 +54,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listView = findViewById(R.id.lstViewID);
 
         createDB();
-        displayContact();
+        Vector<String> vec = new Vector<>();
+        vec = showContacts();
+        displayContact(vec);
 
 
     }
-    public void displayContact()
+    public void onClick(View v)
     {
-        Vector<String> mTitle = new Vector<>();
-        mTitle = showContacts();
-        MyAdapter adapter = new MyAdapter(this, mTitle, images);
-        listView.setAdapter(adapter);
-        Log.d("debug", "here!!!!");
-        for (int i = 0; i < mTitle.size(); i++)
+        switch (v.getId())
         {
-            Log.d("debug","valu: "+ mTitle.get(i));
+            case R.id.insert_id:
+                addContact();
+                break;
+            case R.id.search_id:
+                findSubString();
+                break;
         }
     }
-    class MyAdapter extends ArrayAdapter<String> {
+    public void displayContact(Vector<String> mTitle)
+    {
+        MyAdapter adapter = new MyAdapter(this, mTitle, images[0]);
+        listView.setAdapter(adapter);
+    }
+    class MyAdapter extends ArrayAdapter<String>
+    {
 
         Context context;
         Vector<String> rTitle;
-        int rImgs[];
+        int rImgs;
 
-        MyAdapter (Context c, Vector<String> title, int imgs[]) {
+        MyAdapter (Context c, Vector<String> title, int imgs)
+        {
             super(c, R.layout.row, R.id.textView1, title);
             this.context = c;
             this.rTitle = title;
@@ -91,29 +100,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             View row = layoutInflater.inflate(R.layout.row, parent, false);
             ImageView images = row.findViewById(R.id.image);
             TextView myTitle = row.findViewById(R.id.textView1);
-
-
-            // now set our resources on views
-            images.setImageResource(rImgs[0]);
+            images.setImageResource(rImgs);
             myTitle.setText(rTitle.get(position));
-
-
             return row;
         }
     }
 
-    @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
-            case R.id.insert_id:
 
-                addContact();
-
-                break;
-        }
-    }
     public void createDB()
     {
         try
@@ -121,13 +114,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             contactsDB = openOrCreateDatabase(MY_DB_NAME, MODE_PRIVATE, null);
             String sql = "CREATE TABLE IF NOT EXISTS contacts (id integer primary key, name VARCHAR, phone VARCHAR);";
             contactsDB.execSQL(sql);
-
         }
-        catch (Exception e)
-        {
-            Log.d("debug", "Error Creating Database");
-        }
-
+        catch (Exception e) { Log.d("debug", "Error Creating Database"); }
     }
 
     public void addContact()
@@ -139,14 +127,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "missing name & phone", Toast.LENGTH_SHORT).show();
             return;
         }
-
         String sql = "INSERT INTO contacts (name, phone) VALUES ('" + contactName + "', '" + contactPhone + "');";
         contactsDB.execSQL(sql);
         Toast.makeText(this, contactName + "one contact added", Toast.LENGTH_SHORT).show();
-
-        displayContact();
+        displayContact(showContacts());
+        nameField.setText("");
+        phoneField.setText("");
     }
 
+    public void findSubString()
+    {
+        Vector <String> vec = new Vector<>();
+        String sql = "SELECT * FROM contacts";
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+        int nameColumn = cursor.getColumnIndex("name");
+        int phoneColumn = cursor.getColumnIndex("phone");
+        String nameFromTable = "";
+        String contactList = "";
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(nameColumn);
+                String phone = cursor.getString(phoneColumn);
+                contactList =  name  +"  "+ phone ;
+
+                if(contactList.toLowerCase().contains(nameField.getText().toString().toLowerCase())&&contactList.toLowerCase().contains(phoneField.getText().toString().toLowerCase()))
+                {
+                    Log.d("debug","value: "+contactList);
+                    vec.addElement(contactList);
+                }
+            } while (cursor.moveToNext());
+        } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
+        displayContact(vec);
+    }
+    public Vector<String> showSpecificContact(String nameTofind)
+    {
+        Vector <String> vec = new Vector<>();
+        String sql = "SELECT * FROM contacts WHERE name = nameTofind";
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+
+        int idColumn = cursor.getColumnIndex("id");
+        int nameColumn = cursor.getColumnIndex("name");
+        int phoneColumn = cursor.getColumnIndex("phone");
+
+        String contactList = "";
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(idColumn);
+                String name = cursor.getString(nameColumn);
+                String phone = cursor.getString(phoneColumn);
+
+                contactList =  name  +"  "+ phone ;
+                vec.addElement(contactList);
+
+            } while (cursor.moveToNext());
+
+
+        } else {
+
+            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
+        }
+        return vec;
+    }
     public Vector<String> showContacts()
     {
         Vector <String> vec = new Vector<>();
@@ -160,13 +201,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String contactList = "";
         if (cursor.moveToFirst()) {
             do {
-                contactList = "";
                 String id = cursor.getString(idColumn);
                 String name = cursor.getString(nameColumn);
                 String phone = cursor.getString(phoneColumn);
 
-                contactList = contactList  + name  +"  "+ phone ;
-
+                contactList =  name  +"  "+ phone ;
                 vec.addElement(contactList);
 
             } while (cursor.moveToNext());
