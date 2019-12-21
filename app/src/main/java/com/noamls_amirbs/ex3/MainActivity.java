@@ -5,9 +5,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,16 +69,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                String item = "Item " + position ;
-                int redColorValue = Color.RED;
-
-                //edtInput.setText(item);
-                Toast.makeText(MainActivity.this, item, Toast.LENGTH_LONG).show();
+               dialPhoneNumber(getIdContact(position+1));
+                Log.d("clickDebug","position: "+position+"clickDebug: "+getIdContact(position+1));
+                Toast.makeText(MainActivity.this, "clicked", Toast.LENGTH_LONG).show();
             }
         });
 
 
     }
+    public void dialPhoneNumber(String phoneNumber)
+    {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        startActivity(intent);
+    }
+
     public void onClick(View v)
     {
         switch (v.getId())
@@ -146,18 +153,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         catch (Exception e) { Log.d("debug", "Error Creating Database"); }
     }
 
+    
     public void addContact()
     {
         String contactName = nameField.getText().toString();
         String contactPhone = phoneField.getText().toString();
         if(contactPhone.matches(""))
-        {
             hasPhoneNum.addElement(false);
-        }
+
         else
-        {
             hasPhoneNum.addElement(true);
-        }
+
         if(contactName.matches("") && contactPhone.matches(""))
         {
             Toast.makeText(this, "missing name & phone", Toast.LENGTH_SHORT).show();
@@ -194,6 +200,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } while (cursor.moveToNext());
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         displayContact(vec);
+    }
+    public String getIdContact(int curId)
+    {
+        String sql = "SELECT * FROM contacts";
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+
+        int idColumn = cursor.getColumnIndex("id");
+        int phoneColumn = cursor.getColumnIndex("phone");
+
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(idColumn);
+                String phone = cursor.getString(phoneColumn);
+
+                 if(curId == Integer.parseInt(id))
+                     return phone;
+
+            } while (cursor.moveToNext());
+
+
+        } else {
+
+            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
+        }
+        return "";
+
     }
 
     public Vector<String> showContacts()
