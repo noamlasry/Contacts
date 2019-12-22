@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String MY_DB_NAME = "contacts.db";
     Vector<Boolean> hasPhoneNum = new Vector<>();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -60,11 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         vec = showContacts();
         displayContact(vec);
 
-
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
-            @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 dialPhoneNumber(getIdContact(position+1));
@@ -165,13 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String sql = "INSERT INTO contacts (name, phone) VALUES ('" + contactName + "', '" + contactPhone + "');";
         contactsDB.execSQL(sql);
         Toast.makeText(this, contactName + "one contact added", Toast.LENGTH_SHORT).show();
-        displayContact(showContacts());
         nameField.setText("");
         phoneField.setText("");
+
+        hasPhoneNum.removeAllElements();
         Vector<String> vec = new Vector<>();
         vec = showContacts();
         displayContact(vec);
-        this.recreate();
     }
 
     public void findSubString()
