@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SQLiteDatabase contactsDB = null;
     public static final String MY_DB_NAME = "contacts.db";
     Vector<Boolean> hasPhoneNum = new Vector<>();
+    Vector<String> vec = new Vector<>();
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listView = findViewById(R.id.lstViewID);
 
         createDB();
-        Vector<String> vec = new Vector<>();
+
         vec = showContacts();
         displayContact(vec);
 
@@ -166,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         phoneField.setText("");
 
         hasPhoneNum.removeAllElements();
-        Vector<String> vec = new Vector<>();
         vec = showContacts();
         displayContact(vec);
     }
@@ -251,33 +251,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return vec;
     }
-    public Vector<Boolean> setBoolArray()
-    {
-        Vector <Boolean> vec = new Vector<>();
-        String sql = "SELECT * FROM contacts";
-        Cursor cursor = contactsDB.rawQuery(sql, null);
-
-        int phoneColumn = cursor.getColumnIndex("phone");
-
-        String contactList = "";
-        if (cursor.moveToFirst()) {
-            do {
-                String phone = cursor.getString(phoneColumn);
-
-               if(phone.matches(""))
-                   vec.addElement(false);
-               else
-                   vec.addElement(true);
-
-            } while (cursor.moveToNext());
-
-
-        } else {
-
-            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
-        }
-        return vec;
-    }
-
 
 }
