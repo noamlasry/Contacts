@@ -58,12 +58,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createDB();
         vec = showContacts();
         displayContact(vec);
-        //=========dial the number once the user click the contact==========//
+        //=========dial the number once the caller mclick the contact==========//
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                dialPhoneNumber(getIdContact(position+1));
+                if(getIdContact(position+1).matches(""))
+                {
+                    Toast.makeText(MainActivity.this, "the contact has no number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else
+                  dialPhoneNumber(getIdContact(position+1));
             }
         });
         //====================================================================//
@@ -80,10 +86,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         switch (v.getId())
         {
-            case R.id.insert_id:
+            case R.id.insert_id:// get here when the user click the ADD button to add contact
                 addContact();
                 break;
-            case R.id.search_id:
+            case R.id.search_id:// get here when the user decide to search a specific contact
                 findSubString();
                 break;
 
@@ -118,10 +124,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(!hasPhoneNum.isEmpty())
             {
                 if(hasPhoneNum.get(position))
-                    image = R.mipmap.green_phone_icon;
+                    image = R.drawable.ic_call_green;
 
                 else
-                    image = R.mipmap.gray_phone_icon;
+                    image = R.drawable.ic_call_gray;
             }
             images.setImageResource(image);
             singleContact.setText(contact_data.get(position));
@@ -161,10 +167,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-
         String sql = "INSERT INTO contacts (name, phone) VALUES ('" + contactName + "', '" + contactPhone + "');";
         contactsDB.execSQL(sql);
-        Toast.makeText(this, contactName + " was added", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, contactName + " contact added", Toast.LENGTH_SHORT).show();
         nameField.setText("");
         phoneField.setText("");
 
@@ -172,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         vec = showContacts();
         displayContact(vec);
     }
-    //===== check if the name already exist on the list ==============//
+   //==== we get here to check if there is a duplicate name, and if there is when update the phone number
     public boolean checkAndUpdateDupContact(String newName,String newPhoneNum)
     {
         String sql = "SELECT * FROM contacts";
@@ -181,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (cursor.moveToFirst()) {
             do {
                 String cur_name = cursor.getString(nameColumn);
-                if(newName.matches(cur_name))// update the list
+                if(newName.matches(cur_name))
                 {
                     String strSQL = "UPDATE contacts "
                             + "SET phone = "+"'" + newPhoneNum + "'"
@@ -200,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         return false;
     }
-   //===== use for search function =========//
+    //====== use to search a sub contact ============//
     public void findSubString()
     {
         Vector <String> vec = new Vector<>();
@@ -215,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             do {
                 String name = cursor.getString(nameColumn);
                 String phone = cursor.getString(phoneColumn);
-                contactList =  name  +"  "+ phone ;
+                contactList =  name  +"\n\n"+ phone ;
 
                 if(contactList.toLowerCase().contains(nameField.getText().toString().toLowerCase())&&contactList.toLowerCase().contains(phoneField.getText().toString().toLowerCase()))
                 {
@@ -229,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         displayContact(vec);
     }
-    //==== get the phone number by id (use to make a call)======//
+    //use in check if there is a number in the specific contact //
     public String getIdContact(int curId)
     {
         String sql = "SELECT * FROM contacts";
@@ -250,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         return "";
     }
-    //===== use to display the contact list ===========//
+    //===== use in display function to dispaly the contact list ============//
     public Vector<String> showContacts()
     {
         Vector <String> vec = new Vector<>();
@@ -265,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String name = cursor.getString(nameColumn);
                 String phone = cursor.getString(phoneColumn);
 
-                contactList =  name  +"  "+ phone ;
+                contactList =  name  +"\n\n"+ phone ;
                 if(phone.matches(""))
                     hasPhoneNum.addElement(false);
                 else
