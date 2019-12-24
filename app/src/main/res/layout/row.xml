@@ -28,6 +28,7 @@
             android:src="@mipmap/ic_launcher" />
 
 
+
         <!--so our layout is set-->
 
     </LinearLayout>

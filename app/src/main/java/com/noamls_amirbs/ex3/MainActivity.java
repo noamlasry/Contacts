@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listView = findViewById(R.id.lstViewID);
 
         createDB();
-
         vec = showContacts();
         displayContact(vec);
 
@@ -111,8 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
-        @NonNull
-        @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View row = layoutInflater.inflate(R.layout.row, parent, false);
@@ -216,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         Vector <String> vec = new Vector<>();
         Vector <Boolean> phoneNameBool = new Vector<>();
+        hasPhoneNum.removeAllElements();
 
         String sql = "SELECT * FROM contacts";
         Cursor cursor = contactsDB.rawQuery(sql, null);
@@ -229,12 +227,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 contactList =  name  +"  "+ phone ;
 
                 if(contactList.toLowerCase().contains(nameField.getText().toString().toLowerCase())&&contactList.toLowerCase().contains(phoneField.getText().toString().toLowerCase()))
+                {
                     vec.addElement(contactList);
+                    if(phone.matches(""))
+                        hasPhoneNum.addElement(false);
+                    else
+                        hasPhoneNum.addElement(true);
+                }
+
 
             } while (cursor.moveToNext());
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
-        hasPhoneNum.removeAllElements();
-        showContacts();
+
+        //showContacts();
         displayContact(vec);
     }
     public String getIdContact(int curId)
