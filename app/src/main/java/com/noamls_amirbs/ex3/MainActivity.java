@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createDB();
         vec = showContacts();
         displayContact(vec);
-        //=========dial the number once the caller mclick the contact==========//
+        //=========dial the number once the user click the contact==========//
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String sql = "INSERT INTO contacts (name, phone) VALUES ('" + contactName + "', '" + contactPhone + "');";
         contactsDB.execSQL(sql);
-        Toast.makeText(this, contactName + "one contact added", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, contactName + " was added", Toast.LENGTH_SHORT).show();
         nameField.setText("");
         phoneField.setText("");
 
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         vec = showContacts();
         displayContact(vec);
     }
-
+    //===== check if the name already exist on the list ==============//
     public boolean checkAndUpdateDupContact(String newName,String newPhoneNum)
     {
         String sql = "SELECT * FROM contacts";
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (cursor.moveToFirst()) {
             do {
                 String cur_name = cursor.getString(nameColumn);
-                if(newName.matches(cur_name))
+                if(newName.matches(cur_name))// update the list
                 {
                     String strSQL = "UPDATE contacts "
                             + "SET phone = "+"'" + newPhoneNum + "'"
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         return false;
     }
-
+   //===== use for search function =========//
     public void findSubString()
     {
         Vector <String> vec = new Vector<>();
@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         displayContact(vec);
     }
+    //==== get the phone number by id (use to make a call)======//
     public String getIdContact(int curId)
     {
         String sql = "SELECT * FROM contacts";
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
         return "";
     }
-
+    //===== use to display the contact list ===========//
     public Vector<String> showContacts()
     {
         Vector <String> vec = new Vector<>();
