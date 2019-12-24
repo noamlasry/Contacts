@@ -161,6 +161,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "missing name & phone", Toast.LENGTH_SHORT).show();
             return;
         }
+        if(contactName.matches(""))
+        {
+            Toast.makeText(this, "missing contact name", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(checkAndUpdateDupContact(contactName,contactPhone))
         {
             Log.d("debug","the contact name already exist");
