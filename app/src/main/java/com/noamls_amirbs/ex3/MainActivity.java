@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -160,6 +161,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "missing name & phone", Toast.LENGTH_SHORT).show();
             return;
         }
+        if(checkAndUpdateDupContact(contactName,contactPhone))
+        {
+            Log.d("debug","the contact name already exist");
+            return;
+        }
+
+
         String sql = "INSERT INTO contacts (name, phone) VALUES ('" + contactName + "', '" + contactPhone + "');";
         contactsDB.execSQL(sql);
         Toast.makeText(this, contactName + "one contact added", Toast.LENGTH_SHORT).show();
@@ -171,14 +179,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayContact(vec);
     }
 
+    public boolean checkAndUpdateDupContact(String newName,String newPhoneNum)
+    {
+        String sql = "SELECT * FROM contacts";
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+        int nameColumn = cursor.getColumnIndex("name");
+        String str = "ls";
+        if (cursor.moveToFirst()) {
+            do {
+                String cur_name = cursor.getString(nameColumn);
+                if(newName.matches(cur_name))
+                {
+                    String strSQL = "UPDATE contacts "
+                            + "SET phone = "+"'" + newPhoneNum + "'"
+                            + "WHERE name = "+"'" + newName + "'";
+                    Log.d("debug","value: "+strSQL);
+                    contactsDB.execSQL(strSQL);
+                    hasPhoneNum.removeAllElements();
+                    vec = showContacts();
+                    displayContact(vec);
+
+                    return true;
+                }
+
+            } while (cursor.moveToNext());
+
+
+        } else {
+
+            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
     public void findSubString()
     {
         Vector <String> vec = new Vector<>();
+        Vector <Boolean> phoneNameBool = new Vector<>();
+
         String sql = "SELECT * FROM contacts";
         Cursor cursor = contactsDB.rawQuery(sql, null);
         int nameColumn = cursor.getColumnIndex("name");
         int phoneColumn = cursor.getColumnIndex("phone");
-        String nameFromTable = "";
         String contactList = "";
         if (cursor.moveToFirst()) {
             do {
@@ -191,6 +233,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } while (cursor.moveToNext());
         } else { Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show(); }
+        hasPhoneNum.removeAllElements();
+        showContacts();
         displayContact(vec);
     }
     public String getIdContact(int curId)
